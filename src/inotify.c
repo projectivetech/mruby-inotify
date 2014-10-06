@@ -118,8 +118,9 @@ mrb_inotify_event_from_struct(mrb_state* mrb, ino_ev_t* event)
   return instance;
 }
 
+// Used both by Inotify::Notifier and Inotify::RecursiveNotifier.
 static mrb_value
-mrb_inotify_notifier_new(mrb_state* mrb, mrb_value self)
+mrb_inotify_notifier_klass_new(mrb_state* mrb, mrb_value self)
 {
   int       fd;
   mrb_value instance;
@@ -219,12 +220,13 @@ mrb_mruby_inotify_gem_init(mrb_state* mrb)
 {
   struct RClass* m_inotify;
   struct RClass* c_notifier;
+  struct RClass* c_recursive_notifier;
 
   m_inotify = mrb_define_module(mrb, "Inotify");
 
   c_notifier = mrb_define_class_under(mrb, m_inotify, "Notifier", mrb->object_class);
   mrb_define_class_method(mrb, c_notifier, "new",
-    mrb_inotify_notifier_new, MRB_ARGS_NONE());
+    mrb_inotify_notifier_klass_new, MRB_ARGS_NONE());
   mrb_define_method(mrb, c_notifier, "add_watch",
     mrb_inotify_notifier_add_watch, MRB_ARGS_REQ(2));
   mrb_define_method(mrb, c_notifier, "rm_watch",
@@ -233,7 +235,11 @@ mrb_mruby_inotify_gem_init(mrb_state* mrb)
     mrb_inotify_notifier_read_events, MRB_ARGS_BLOCK());
   mrb_define_method(mrb, c_notifier, "close",
     mrb_inotify_notifier_close, MRB_ARGS_NONE());
-  
+
+  c_recursive_notifier = mrb_define_class_under(mrb, m_inotify, "RecursiveNotifier", c_notifier);
+  mrb_define_class_method(mrb, c_recursive_notifier, "new",
+    mrb_inotify_notifier_klass_new, MRB_ARGS_NONE());
+
   mrb_define_class_under(mrb, m_inotify, "Event", mrb->object_class);
 }
 
