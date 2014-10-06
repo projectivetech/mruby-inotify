@@ -109,7 +109,7 @@ mrb_inotify_event_from_struct(mrb_state* mrb, ino_ev_t* event)
   mrb_iv_set(mrb, instance, mrb_intern_lit(mrb, "@cookie"),
     mrb_fixnum_value(event->cookie));
   mrb_iv_set(mrb, instance, mrb_intern_lit(mrb, "@name"),
-    mrb_str_new_cstr(mrb, event->name));
+    (event->len > 0) ? mrb_str_new_cstr(mrb, event->name) : mrb_nil_value());
   mrb_iv_set(mrb, instance, mrb_intern_lit(mrb, "@events"),
     mrb_inotify_mask_to_flags_array(mrb, event->mask));
 
