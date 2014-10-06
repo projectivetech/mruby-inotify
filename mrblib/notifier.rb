@@ -1,23 +1,12 @@
 module Inotify
   class Notifier
-    attr_reader :fd, :watchers
-
     def initialize
       @watchers = {}
     end
 
-    def run
-      @stop = false
-      process until @stop
-    end
-
-    def stop
-      @stop = true
-    end
-
     def watch(path, *flags, &block)
       wd = add_watch(path, flags)
-      @watchers[wd] = { path: path, callback: block }      
+      @watchers[wd] = { path: path, callback: block }
       wd
     end
 
