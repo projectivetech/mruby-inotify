@@ -1,4 +1,6 @@
+#include <errno.h>
 #include <limits.h>
+#include <string.h>
 #include <unistd.h>
 #include <sys/inotify.h>
 #include <sys/types.h>
@@ -124,7 +126,7 @@ mrb_inotify_notifier_new(mrb_state* mrb, mrb_value self)
 
   fd = inotify_init();
   if((-1) == fd)
-    mrb_sys_fail(mrb, "inotify_init");
+    mrb_sys_fail(mrb, strerror(errno));
 
   instance = mrb_instance_new(mrb, self);
   mrb_iv_set(mrb, instance, mrb_intern_lit(mrb, "@fd"), mrb_fixnum_value(fd));
@@ -149,7 +151,7 @@ mrb_inotify_notifier_add_watch(mrb_state* mrb, mrb_value self)
     mrb_inotify_flags_array_to_mask(mrb, flags, flags_len));
 
   if((-1) == wd)
-    mrb_sys_fail(mrb, "inotify_add_watch");
+    mrb_sys_fail(mrb, strerror(errno));
 
   return mrb_fixnum_value(wd);
 }
@@ -164,7 +166,7 @@ mrb_inotify_notifier_rm_watch(mrb_state* mrb, mrb_value self)
   mrb_get_args(mrb, "i", &wd);
 
   if((-1) == inotify_rm_watch(fd, wd))
-    mrb_sys_fail(mrb, "inotify_rm_watch");
+    mrb_sys_fail(mrb, strerror(errno));
 
   return mrb_nil_value();
 }
@@ -190,7 +192,7 @@ mrb_inotify_notifier_read_events(mrb_state* mrb, mrb_value self)
 
   nread = read(fd, buffer, EVENT_BUFLEN); 
   if((-1) == nread)
-    mrb_sys_fail(mrb, "read");
+    mrb_sys_fail(mrb, strerror(errno));
 
   for(i = 0; i < nread;) {
     event = (ino_ev_t*) &buffer[i];
@@ -207,7 +209,7 @@ mrb_inotify_notifier_close(mrb_state* mrb, mrb_value self)
   int fd = mrb_fixnum(mrb_iv_get(mrb, self, mrb_intern_lit(mrb, "@fd")));
 
   if((-1) == close(fd))
-    mrb_sys_fail(mrb, "close");
+    mrb_sys_fail(mrb, strerror(errno));
 
   return mrb_nil_value();
 }
