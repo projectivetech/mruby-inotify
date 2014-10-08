@@ -47,9 +47,15 @@ mrb_inotify_flags_array_to_mask(mrb_state* mrb, mrb_value* flags, mrb_int flags_
 
     // Option flags.
     CHECK_FLAG(oneshot, IN_ONESHOT)
+#ifdef IN_ONLYDIR /* since Linux 2.6.15 */
     CHECK_FLAG(onlydir, IN_ONLYDIR)
+#endif
+#ifdef IN_DONT_FOLLOW /* since Linux 2.6.15 */
     CHECK_FLAG(dont_follow, IN_DONT_FOLLOW)
+#endif
+#ifdef IN_EXCL_UNLINK /* since Linux 2.6.36 */
     CHECK_FLAG(excl_unlink, IN_EXCL_UNLINK)
+#endif
     CHECK_FLAG(mask_add, IN_MASK_ADD)
 
     else {
