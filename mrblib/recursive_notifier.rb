@@ -4,9 +4,18 @@ module Inotify
       flags << [:create] unless flags.include?(:create) || flags.include?(:all_events)
       flags << [:delete_self] unless flags.include?(:delete_self) || flags.include?(:all_events)
 
-      work = [path]
-      until work.empty?
-        path = work.shift
+      paths = [path]
+      paths.each do |path|
+        paths.concat(
+          Dir.entries(path).
+            reject { |p| ['.', '..'].include?(p) }.
+            map { |p| File.join(path, p) }.
+            select { |p| File.directory?(p) }
+        )
+      end
+
+      until paths.empty?
+        path = paths.shift
 
         begin
           watch(path, *flags) do |event|
