@@ -14,6 +14,8 @@ module Inotify
         )
       end
 
+      fail "directory tree has more than #{Inotify.max_user_watches} entries" if paths.size > Inotify.max_user_watches
+
       until paths.empty?
         path = paths.shift
 

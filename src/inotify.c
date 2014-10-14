@@ -1,6 +1,9 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include <errno.h>
 #include <limits.h>
-#include <string.h>
 #include <unistd.h>
 #include <sys/inotify.h>
 #include <sys/types.h>
@@ -221,6 +224,23 @@ mrb_inotify_notifier_close(mrb_state* mrb, mrb_value self)
   return mrb_nil_value();
 }
 
+static mrb_value
+mrb_mruby_inotify_max_user_watches(mrb_state* mrb, mrb_value self)
+{
+  char buf[21] = {0};
+
+  FILE* fd = fopen("/proc/sys/fs/inotify/max_user_watches", "r");
+  if(NULL == fd)
+    mrb_sys_fail(mrb, strerror(errno));
+
+  if(NULL == fgets(buf, 21, fd))
+    mrb_sys_fail(mrb, strerror(errno));
+
+  fclose(fd);
+
+  return mrb_fixnum_value(atoi(buf));
+}
+
 void
 mrb_mruby_inotify_gem_init(mrb_state* mrb)
 {
@@ -229,6 +249,8 @@ mrb_mruby_inotify_gem_init(mrb_state* mrb)
   struct RClass* c_recursive_notifier;
 
   m_inotify = mrb_define_module(mrb, "Inotify");
+  mrb_define_class_method(mrb, m_inotify, "max_user_watches",
+    mrb_mruby_inotify_max_user_watches, MRB_ARGS_NONE());
 
   c_notifier = mrb_define_class_under(mrb, m_inotify, "Notifier", mrb->object_class);
   mrb_define_class_method(mrb, c_notifier, "new",
