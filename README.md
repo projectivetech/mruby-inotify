@@ -11,5 +11,18 @@ notifier.watch('/home', :all_events) do |event|
   puts event.inspect
 end
 
-notifier.run
+# .process blocks until events are available
+notifier.process while true
+```
+
+Or, to watch a directory tree:
+
+```ruby
+notifier = Inotify::RecursiveNotifier.new
+
+notifier.rwatch('/home', :all_events) do |event|
+  puts event.inspect
+end
+
+notifier.process while true
 ```
