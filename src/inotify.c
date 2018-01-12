@@ -186,8 +186,8 @@ mrb_inotify_notifier_read_events(mrb_state* mrb, mrb_value self)
 {
   // Events coming from inotify have a length of sizeof(struct inotify_event)
   // + event->len (length of the event->name field).
-  static const ssize_t EVENT_SIZE   = sizeof(struct inotify_event) + NAME_MAX + 1;
-  static const ssize_t EVENT_BUFLEN = 1024 * EVENT_SIZE;
+  const ssize_t EVENT_SIZE   = sizeof(struct inotify_event) + NAME_MAX + 1;
+  const ssize_t EVENT_BUFLEN = 1024 * EVENT_SIZE;
 
   mrb_value block;
   int       fd;
